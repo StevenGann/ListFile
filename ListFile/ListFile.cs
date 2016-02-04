@@ -4,41 +4,38 @@ using System.Collections;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
+using System.Linq;
 
 public class ListFile<T> : List<T>
 {
 
-    public int Count = 0;
+    new public int Count = 0;
     private string className;
-    private string directory;
     private Type c;
     private int index = 0;
-    private string folder = "data";
+    public string Path;
 
     public ListFile()
     {
-
+        Path = "cache/";
     }
 
-    public ListFile(int i, string folder)
+    public ListFile(int i, string path)
     {
         this.index = i;
-        this.folder = folder;
+        Path = path;
     }
 
-    public ListFile(string folder)
+    public ListFile(string path)
     {
-        this.folder = folder;
+        Path = path;
     }
 
     public ListFile(int i)
     {
         this.index = i;
+        Path = "cache/";
     }
-
-
-
-
 
     new public T this[int index]
     {
@@ -53,35 +50,32 @@ public class ListFile<T> : List<T>
     }
 
 
-    public T get(int index)
+    public T Get(int index)
     {
         return this.read(index);
-
     }
 
     private void write(int i, T o)
     {
         //TODO make this suck less
         //I think I made it suck less. ~Steven
-        string dir = System.Environment.GetEnvironmentVariable("USERPROFILE") + "/Desktop/" + "ListFile/" + this.folder + "/" + this.directory + "/";
-
-        if (!Directory.Exists(dir))
+        if (!Directory.Exists(Path))
         {
-            Directory.CreateDirectory(dir);
+            Directory.CreateDirectory(Path);
         }
 
-        string filename = className + "." + i + ".xml";
+        string filename = className + "." + index + "." + i + ".xml";
 
         XmlSerializer writer = new XmlSerializer(typeof(T));
 
-        StreamWriter file = new StreamWriter(dir + filename);
+        StreamWriter file = new StreamWriter(Path + filename);
         writer.Serialize(file, o);
         file.Close();
     }
 
     private T read(int index)
     {
-        string filename = System.Environment.GetEnvironmentVariable("USERPROFILE") + "/Desktop/" + "ListFile/" + this.folder + "/" + this.directory + "/" + className + "." + index + ".xml";
+        string filename = Path + className + "." + this.index + "." + index + ".xml";
         XmlSerializer mySerializer = new XmlSerializer(typeof(T));
 
         FileStream myFileStream = new FileStream(filename, FileMode.Open);
@@ -92,11 +86,10 @@ public class ListFile<T> : List<T>
         return obj;
     }
 
-    public IEnumerator GetEnumerator()
+    new public IEnumerator GetEnumerator()
     {
         for (int i = 0; i < Count; i++)
         {
-            // Yield each day of the week.
             yield return read(i);
         }
     }
@@ -104,7 +97,6 @@ public class ListFile<T> : List<T>
     new public void Add(T o)
     {
         this.className = o.GetType().Name;
-        this.directory = className + "." + index;
         this.c = o.GetType();
         this.Count += 1;
         this.write(Count - 1, o);
@@ -118,6 +110,29 @@ public class ListFile<T> : List<T>
 
     new public void Clear()
     {
-        throw new NotImplementedException();
+        for (int i = 0; i < Count; i++)
+        {
+            string filename = Path + className + "." + this.index + "." + i + ".xml";
+            File.Delete(filename);
+        }
     }
+
+    public void Destroy()
+    {
+        Clear();
+        if (IsDirectoryEmpty(Path))
+        {
+            try
+            {
+                File.Delete(Path);
+            }
+            catch { }
+        }
+    }
+
+    private bool IsDirectoryEmpty(string path)
+    {
+        return !Directory.EnumerateFileSystemEntries(path).Any();
+    }
+
 }

@@ -37,6 +37,9 @@ namespace Tester
             Console.WriteLine(testList3[2]);
 
             Console.ReadLine();
+            testList1.Destroy();
+            testList2.Destroy();
+            testList3.Destroy();
         }
     }
 }
