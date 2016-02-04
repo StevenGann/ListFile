@@ -10,36 +10,27 @@ namespace Tester
     {
         static void Main(string[] args)
         {
-            ListFile<int> testList1 = new ListFile<int>(1);
-            testList1.Add(1);
-            testList1.Add(2);
-            testList1.Add(3);
-            testList1.Add(4);
-            testList1.Add(5);
+            Random RNG = new Random();
+            ListFile<List<string>> bigList = new ListFile<List<string>>(0);
+            for (int j = 0; j < 2000; j++)
+            {
+                List<string> tempList = new List<string>();
+                for (int i = 0; i < 50000; i++)
+                {
+                    string tempString = "";
+                    for (int k = 0; k < 20; k++)
+                    {
+                        tempString += Convert.ToString(RNG.Next(100000, 999999)) + " ";
+                    }
+                    tempList.Add(tempString);
+                }
+                bigList.Add(tempList);
+                Console.WriteLine(j);
+            }
 
-            ListFile<string> testList2 = new ListFile<string>(1);
-            testList2.Add("one");
-            testList2.Add("two");
-            testList2.Add("three");
-            testList2.Add("four");
-            testList2.Add("five");
-            testList2.Insert(0, "Definitely not one");
-
-            ListFile<int> testList3 = new ListFile<int>(2);
-            testList3.Add(1);
-            testList3.Add(2);
-            testList3.Add(3);
-            testList3.Add(4);
-            testList3.Add(5);
-
-            Console.WriteLine(testList1[0]);
-            Console.WriteLine(testList2[1]);
-            Console.WriteLine(testList3[2]);
+            Console.WriteLine("Done generating");
 
             Console.ReadLine();
-            testList1.Destroy();
-            testList2.Destroy();
-            testList3.Destroy();
         }
     }
 }
