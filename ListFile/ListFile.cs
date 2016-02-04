@@ -6,13 +6,14 @@ using System.Xml;
 using System.Xml.Serialization;
 using System.Linq;
 
-public class ListFile<T> : List<T>
+[Serializable]
+public class ListFile<T>
 {
 
-    new public int Count = 0;
-    private string className;
-    private Type c;
-    private int index = 0;
+    public int Count = 0;
+    public string TypeName;
+    [XmlIgnore]public Type Type;
+    public int ID = 0;
     public string Path;
 
     public ListFile()
@@ -22,7 +23,7 @@ public class ListFile<T> : List<T>
 
     public ListFile(int i, string path)
     {
-        this.index = i;
+        this.ID = i;
         Path = path;
     }
 
@@ -33,11 +34,11 @@ public class ListFile<T> : List<T>
 
     public ListFile(int i)
     {
-        this.index = i;
+        this.ID = i;
         Path = "cache/";
     }
 
-    new public T this[int index]
+    public T this[int index]
     {
         get
         {
@@ -64,7 +65,7 @@ public class ListFile<T> : List<T>
             Directory.CreateDirectory(Path);
         }
 
-        string filename = className + "." + index + "." + i + ".xml";
+        string filename = TypeName + "." + ID + "." + i + ".xml";
 
         XmlSerializer writer = new XmlSerializer(typeof(T));
 
@@ -75,7 +76,7 @@ public class ListFile<T> : List<T>
 
     private T read(int index)
     {
-        string filename = Path + className + "." + this.index + "." + index + ".xml";
+        string filename = Path + TypeName + "." + this.ID + "." + index + ".xml";
         XmlSerializer mySerializer = new XmlSerializer(typeof(T));
 
         FileStream myFileStream = new FileStream(filename, FileMode.Open);
@@ -86,7 +87,7 @@ public class ListFile<T> : List<T>
         return obj;
     }
 
-    new public IEnumerator GetEnumerator()
+    public IEnumerator GetEnumerator()
     {
         for (int i = 0; i < Count; i++)
         {
@@ -94,25 +95,25 @@ public class ListFile<T> : List<T>
         }
     }
 
-    new public void Add(T o)
+    public void Add(T o)
     {
-        this.className = o.GetType().Name;
-        this.c = o.GetType();
+        this.TypeName = o.GetType().Name;
+        this.Type = o.GetType();
         this.Count += 1;
         this.write(Count - 1, o);
 
     }
 
-    new public void Insert(int i, T o)
+    public void Insert(int i, T o)
     {
         this.write(i, o);
     }
 
-    new public void Clear()
+    public void Clear()
     {
         for (int i = 0; i < Count; i++)
         {
-            string filename = Path + className + "." + this.index + "." + i + ".xml";
+            string filename = Path + TypeName + "." + this.ID + "." + i + ".xml";
             File.Delete(filename);
         }
         Count = 0;
