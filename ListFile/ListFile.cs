@@ -115,6 +115,7 @@ public class ListFile<T> : List<T>
             string filename = Path + className + "." + this.index + "." + i + ".xml";
             File.Delete(filename);
         }
+        Count = 0;
     }
 
     public void Destroy()
